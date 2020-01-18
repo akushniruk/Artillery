@@ -1,0 +1,18 @@
+config:
+  target: "wss://uat.cashinero.co/api/v2/ranger/public/?stream=global.tickers"
+  phases:
+    - duration: 10 # Test for 60 seconds
+      arrivalRate: 50 # Every second, add 50 users
+      rampTo: 200 # And ramp it up to 200 users in total over the 60s period
+      name: "Ramping up the load"
+    - duration: 120 # Then resume the load test for 120s
+      arrivalRate: 200 # With those 200 users we ramped up to in the first phase
+      rampTo: 200 # And keep it steady at 200 users
+      name: "Pushing a constant load"
+  ensure:
+    maxErrorRate: 1
+scenarios:
+  - engine: "ws"
+    flow:
+      - send: '{"event":"subscribe","streams":["btcusdt.trades","btcusdt.ob-inc"]}' # Subscribe to the public channel
+      - think: 5 # Every connection will remain open for 5s
